@@ -4,31 +4,33 @@ on:
   pull_request:
     paths:
       - 'app/**'
-      - .github/workflows/deploy-pr.yaml
+      - .github/workflows/deploy-pr.yml
 
 env:
-  RESISTRY: ghcr.io
+  REGISTRY: ghcr.io
 
 jobs:
   build-and-push-image:
+    outputs:
+      IMAGE_FULL_NAME: ${{ steps.meta.outputs.tags }}
     runs-on: ubuntu-latest
     steps:
-      - name: Chekout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.RESISTRY }}/${{ github.repository }} 
+          images: ${{ env.REGISTRY }}/${{ github.repository }} # ghcr.io/nakamasato/fastapi-sample
 
       - name: Log in to GitHub container registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.RESISTRY }}
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-    
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
